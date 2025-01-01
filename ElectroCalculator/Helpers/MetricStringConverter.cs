@@ -43,16 +43,39 @@ namespace ElectroCalculator.Helpers
             string standardizedInput = input.Replace('.', ',');
 
             // Regular expression to extract numeric value and optional metric prefix
-            var match = Regex.Match(standardizedInput, @"^(?<value>-?\d+(?:,\d+)?)(?<prefix>[a-zA-Z]?)$");
+            var match = Regex.Match(standardizedInput, @"^(?<value>-?\d+(?:,\d+)?)(?<prefix>[a-zA-Z]*)$|^(?<value1>-?\d+(?:,\d+)?)(?<prefix1>[a-zA-Z])(?<value2>\d+(?:,\d+)?)$");
+
+            if (match.Success)
+            {
+                if (match.Groups["value"].Success)
+                {
+                    Console.WriteLine($"Value: {match.Groups["value"].Value}, Prefix: {match.Groups["prefix"].Value}");
+                }
+                else if (match.Groups["value1"].Success && match.Groups["prefix1"].Success && match.Groups["value2"].Success)
+                {
+                    Console.WriteLine($"Value1: {match.Groups["value1"].Value}, Prefix: {match.Groups["prefix1"].Value}, Value2: {match.Groups["value2"].Value}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No match found.");
+            }
 
             if (!match.Success)
                 throw new FormatException("Input string is not in a valid format.");
 
             // Parse the numeric part
-            string valuePart = match.Groups["value"].Value;
+            string valuePart = "0";
             string prefixPart = match.Groups["prefix"].Value;
-
-            if (!float.TryParse(valuePart, NumberStyles.Float, CultureInfo.InvariantCulture, out float numericValue))
+            if (match.Groups["value"].Success)
+            {
+                valuePart = match.Groups["value"].Value;
+            }
+            else if (match.Groups["value1"].Success && match.Groups["prefix1"].Success && match.Groups["value2"].Success)
+            {
+                valuePart = match.Groups["value1"].Value+ match.Groups["value2"].Value;
+            }
+            if (!float.TryParse(valuePart.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out float numericValue))
                 throw new FormatException("Unable to parse the numeric part of the input string.");
 
             // Apply metric prefix multiplier if applicable
@@ -78,7 +101,14 @@ namespace ElectroCalculator.Helpers
                 if (Math.Abs(value) >= prefix.Key)
                 {
                     float scaledValue = value / prefix.Key;
-                    return $"{scaledValue:F2}{prefix.Value}";
+
+                    // If the scaled value is an integer, remove the decimal part
+                    if (scaledValue == (int)scaledValue)
+                    {
+                        return $"{(int)scaledValue}{prefix.Value}"; // Return as an integer without decimals
+                    }
+
+                    return $"{scaledValue:F2}{prefix.Value}"; // Otherwise, return with 2 decimal places
                 }
             }
 
