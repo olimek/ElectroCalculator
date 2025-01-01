@@ -1,3 +1,6 @@
+﻿using ElectroCalculator.Helpers;
+
+
 namespace ElectroCalculator.Pages;
 
 public partial class OhmCalc : ContentPage
@@ -6,38 +9,46 @@ public partial class OhmCalc : ContentPage
     {
         InitializeComponent();
     }
-    private void OnComputeClicked(object sender, EventArgs e)
+    private async void OnComputeClicked(object sender, EventArgs e)
     {
         string currentValue = currentEntry.Text;
         string voltageValue = voltageEntry.Text;
         string resistanceValue = resistanceEntry.Text;
-        bool current = false;
-        bool voltage = false;
-        bool resistance = false;
-        if (string.IsNullOrWhiteSpace(currentValue))
-        { current = true; }
-        if (string.IsNullOrWhiteSpace(voltageValue))
-        { voltage = true; }
-        if (string.IsNullOrWhiteSpace(resistanceValue))
-        { resistance = true; }
 
+        bool current = string.IsNullOrWhiteSpace(currentValue);
+        bool voltage = string.IsNullOrWhiteSpace(voltageValue);
+        bool resistance = string.IsNullOrWhiteSpace(resistanceValue);
+
+        float ampere = 0, volt = 0, res = 0;
+
+        try
+        {
+            if (!current) ampere = MetricStringConverter.ConvertToFloat(currentValue);
+            if (!voltage) volt = MetricStringConverter.ConvertToFloat(voltageValue);
+            if (!resistance) res = MetricStringConverter.ConvertToFloat(resistanceValue);
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Błąd", $"Nieprawidłowe dane wejściowe: {ex.Message}", "OK");
+            return;
+        }
+
+        // Logika obliczeń
         if (current && !voltage && !resistance)
         {
-            currentEntry.Text = (float.Parse(voltageValue) / float.Parse(resistanceValue)).ToString();
+            currentEntry.Text = MetricStringConverter.ConvertToMetricString((volt / res));
         }
         else if (!current && voltage && !resistance)
         {
-            voltageEntry.Text = (float.Parse(currentValue) * float.Parse(resistanceValue)).ToString();
+            voltageEntry.Text = MetricStringConverter.ConvertToMetricString((ampere * res));
         }
         else if (!current && !voltage && resistance)
         {
-            resistanceEntry.Text = (float.Parse(voltageValue) / float.Parse(currentValue)).ToString();
+            resistanceEntry.Text = MetricStringConverter.ConvertToMetricString((volt / ampere));
         }
         else
         {
-            DisplayAlert("Error", "Only one field can be empty", "OK");
+            await DisplayAlert("Błąd", "Tylko jedno pole może być puste", "OK");
         }
-
-
     }
 }
