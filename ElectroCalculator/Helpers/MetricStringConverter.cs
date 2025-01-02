@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ElectroCalculator.Helpers
 {
@@ -100,14 +102,15 @@ namespace ElectroCalculator.Helpers
             {
                 if (Math.Abs(value) >= prefix.Key)
                 {
-                    float scaledValue = value / prefix.Key;
 
+                    float scaledValue = 0;
                     // If the scaled value is an integer, remove the decimal part
-                    if (scaledValue == (int)scaledValue)
+                    if ((value - (int)Math.Round(value, 0)) < 0.001f)
                     {
-                        return $"{(int)scaledValue}{prefix.Value}"; // Return as an integer without decimals
+                        scaledValue = value / prefix.Key;
+                        return $"{(int)Math.Round(scaledValue, 0)}{prefix.Value}"; // Return as an integer without decimals
                     }
-
+                    scaledValue = value / prefix.Key;
                     return $"{scaledValue:F2}{prefix.Value}"; // Otherwise, return with 2 decimal places
                 }
             }
