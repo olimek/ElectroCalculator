@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ElectroCalculator.Helpers
@@ -23,18 +24,6 @@ namespace ElectroCalculator.Helpers
         { "p", 0.000_000_000_001f }, // pico
     };
 
-        private static readonly Dictionary<float, string> ReverseMetricPrefixes = new()
-    {
-        { 1_000_000_000_000f, "T" }, // Tera
-        { 1_000_000_000f, "G" },     // Giga
-        { 1_000_000f, "M" },         // Mega
-        { 1_000f, "k" },             // kilo
-        { 1f, "" },                  // no prefix
-        { 0.001f, "m" },             // mili
-        { 0.000_001f, "u" },         // mikro
-        { 0.000_000_001f, "n" },     // nano
-        { 0.000_000_000_001f, "p" }  // pico
-    };
 
         public static float ConvertToFloat(string input)
         {
@@ -96,26 +85,73 @@ namespace ElectroCalculator.Helpers
             return numericValue;
         }
 
-        public static string ConvertToMetricString(float value)
+        public static string ConvertToMetricString(double value)
         {
-            foreach (var prefix in ReverseMetricPrefixes)
+            
+            if (value >= 1)
             {
-                if (Math.Abs(value) >= prefix.Key)
+                int Intvalue = (int)Math.Round(value, 0);
+                if (Intvalue - value < 0.001d)
                 {
-
-                    float scaledValue = 0;
-                    // If the scaled value is an integer, remove the decimal part
-                    if ((value - (int)Math.Round(value, 0)) < 0.001f)
-                    {
-                        scaledValue = value / prefix.Key;
-                        return $"{(int)Math.Round(scaledValue, 0)}{prefix.Value}"; // Return as an integer without decimals
-                    }
-                    scaledValue = value / prefix.Key;
-                    return $"{scaledValue:F2}{prefix.Value}"; // Otherwise, return with 2 decimal places
+                    value = Intvalue;
+                }
+                if (1000000 > Intvalue && Intvalue >= 1000)
+                {
+                    value /= 1000;
+                    string OUT = value.ToString("0.##");
+                    return $"{(OUT)}k";
+                }
+                else if (1000000000 > Intvalue && Intvalue >= 1000000) //Mega
+                {
+                    value /= 1000000;
+                    string OUT = value.ToString("0.##");
+                    return $"{(OUT)}Meg";
+                }
+                else if (Intvalue >= 1000000000) //Giga
+                {
+                    value /= 1000000000;
+                    string OUT = value.ToString("0.##");
+                    return $"{(OUT)}G";
+                }
+                else
+                {
+                    string OUT = value.ToString("0.##");
+                    return $"{OUT}";
                 }
             }
+            else
+            { 
 
-            return value.ToString("F2"); // If no prefix applies, return plain value
+                if (0.999d >= value && value > 0.0001d) //mili
+                {
+                    value *= 1000;
+                    string OUT = value.ToString("0.##");
+                    return $"{(OUT)}m";
+                }
+                else if (0.0001d >= value && value > 0.0000001d) //micro
+                {
+                    value *= 1000000;
+                    string OUT = value.ToString("0.##");
+                    return $"{(OUT)}u";
+                }
+                else if (0.0000001d >= value && value > 0.0000000001d) //nano
+                {
+                    value *= 1000000000;
+                    string OUT = value.ToString("0.##");
+                    return $"{(OUT)}n";
+                }
+                else if (0.0000000001d >= value) //pico
+                {
+                    value *= 1000000000000;
+                    string OUT = value.ToString("0.##");
+                    return $"{(OUT)}p";
+                }
+                else
+                {
+                    string OUT = value.ToString("0.##");
+                    return $"{OUT}";
+                }
+            }
         }
     }
 

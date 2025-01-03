@@ -65,12 +65,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Pages\VoltageDivider.xaml.cs">
+	    <DependentUpon>VoltageDivider.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Pages\OhmCalc.xaml.cs">
 	    <DependentUpon>OhmCalc.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Pages\VoltageDivider.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\OhmCalc.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

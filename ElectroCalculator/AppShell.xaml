@@ -14,10 +14,15 @@
     
 
 
-<ShellContent
+    <ShellContent
         Title="OhmLaw"
         ContentTemplate="{DataTemplate local:OhmCalc}"
         Route="OhmCalc" />
+
+    <ShellContent
+        Title="VoltageDivider"
+        ContentTemplate="{DataTemplate local:VoltageDivider}"
+        Route="VoltageDivider" />
 
 
 </Shell>
